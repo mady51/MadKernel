@@ -18,7 +18,6 @@
 #include <linux/hrtimer.h>
 #include <linux/input.h>
 #include <linux/module.h>
-#include <linux/moduleparam.h>
 #include <linux/notifier.h>
 #include <linux/slab.h>
 
@@ -45,10 +44,10 @@ static struct delayed_work restore_work;
 static DEFINE_MUTEX(boost_mutex);
 
 static bool boost_running;
-static bool freqs_available;
-static unsigned int boost_freq[3];
+static bool freqs_available __read_mostly;
+static unsigned int boost_freq[3] __read_mostly;
 static unsigned int boost_ms[3];
-static unsigned int enabled;
+static unsigned int enabled __read_mostly;
 
 static u64 last_input_time;
 #define MIN_INPUT_INTERVAL (150 * USEC_PER_MSEC)
