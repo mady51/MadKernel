@@ -39,9 +39,7 @@ struct boost_policy {
 static DEFINE_PER_CPU(struct boost_policy, boost_info);
 static struct workqueue_struct *boost_wq;
 static struct work_struct boost_work;
-static struct delayed_work restore_work;
-
-static DEFINE_MUTEX(boost_mutex);
+static spinlock_t boost_lock;
 
 static bool boost_running;
 static bool freqs_available __read_mostly;
@@ -177,9 +175,9 @@ static int cpu_do_boost(struct notifier_block *nb, unsigned long val, void *data
 	if (policy->cpu > 2)
 		return NOTIFY_OK;
 
-	mutex_lock(&boost_mutex);
+	spin_lock(&boost_lock);
 	b_freq = boost_freq[policy->cpu];
-	mutex_unlock(&boost_mutex);
+	spin_unlock(&boost_lock);
 
 	if (!b_freq)
 		return NOTIFY_OK;
@@ -302,7 +300,7 @@ static ssize_t boost_freqs_write(struct device *dev,
 		return -EINVAL;
 
 	/* Freq order should be [high, mid, low], so always order it like that */
-	mutex_lock(&boost_mutex);
+	spin_lock(&boost_lock);
 	boost_freq[0] = max3(freq[0], freq[1], freq[2]);
 	boost_freq[2] = min3(freq[0], freq[1], freq[2]);
 
@@ -316,7 +314,7 @@ static ssize_t boost_freqs_write(struct device *dev,
 			break;
 		}
 	}
-	mutex_unlock(&boost_mutex);
+	spin_unlock(&boost_lock);
 
 	freqs_available = true;
 
@@ -396,6 +394,8 @@ static int __init cpu_input_boost_init(void)
 		ret = -EFAULT;
 		goto err;
 	}
+
+	spin_lock_init(&boost_lock);
 
 	cpufreq_register_notifier(&cpu_do_boost_nb, CPUFREQ_POLICY_NOTIFIER);
 
