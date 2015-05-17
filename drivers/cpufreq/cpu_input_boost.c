@@ -78,24 +78,9 @@ static void __cpuinit cpu_boost_main(struct work_struct *work)
 	if (!num_cpus_to_boost)
 		num_cpus_to_boost = 1;
 
-	/* Boost freq to use based on how many CPUs to boost */
-	switch (num_cpus_to_boost * 100 / CONFIG_NR_CPUS) {
-	case 25:
-		boost_level = HIGH;
-		break;
-	case 50:
-		boost_level = MID;
-		break;
-	default:
-		boost_level = LOW;
-	}
-
-	/* Dual-core systems need more power */
-	if (CONFIG_NR_CPUS == 2)
-		boost_level++;
-
-	/* Calculate boost duration */
-	boost_ms = 3000 - ((num_cpus_to_boost * 750) + ((boost_level + 1) * 250));
+	/* Calculate boost duration for each CPU (CPU0 is boosted the longest) */
+	for (cpu = 0; cpu < num_cpus_to_boost; cpu++)
+		boost_ms[cpu] = 1650 - (cpu * 300) - (num_cpus_to_boost * 300);
 
 	cpu_boost(num_cpus_to_boost);
 	put_online_cpus();
