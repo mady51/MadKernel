@@ -55,6 +55,8 @@
 #define TRACE_MSM_THERMAL
 #include <trace/trace_thermal.h>
 
+#define HOTPLUG_SENSOR_ID 18
+
 #define MAX_CURRENT_UA 100000
 #define MAX_RAILS 5
 #define TSENS_NAME_FORMAT "tsens_tz_sensor%d"
@@ -3483,6 +3485,21 @@ static void check_temp(struct work_struct *work)
 	int ret = 0;
 
 	do_therm_reset();
+
+	if (!polling_enabled) {
+		ret = therm_get_temp(HOTPLUG_SENSOR_ID, THERM_ZONE_ID, &temp);
+		if (ret) {
+			pr_err("Unable to read sensor:%d. err:%d\n",
+				HOTPLUG_SENSOR_ID, ret);
+			goto reschedule;
+		}
+		do_core_control(temp);
+		if (!freq_table_get)
+			check_freq_table();
+		do_freq_control(temp);
+
+		goto reschedule;
+	}
 
 	ret = therm_get_temp(msm_thermal_info.sensor_id, THERM_TSENS_ID, &temp);
 	if (ret) {
