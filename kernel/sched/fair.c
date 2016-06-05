@@ -2413,7 +2413,18 @@ unsigned int __read_mostly sched_spill_load;
 unsigned int __read_mostly sysctl_sched_spill_load_pct = 100;
 
 /*
- * frequency aggregation threshold
+ * Tasks whose bandwidth consumption on a cpu is less than
+ * sched_small_task are considered as small tasks.
+ */
+unsigned int __read_mostly sched_small_task;
+unsigned int __read_mostly sysctl_sched_small_task_pct = 30; // 10;
+
+/*
+ * Tasks with demand >= sched_heavy_task will have their
+ * window-based demand added to the previous window's CPU
+ * time when they wake up, if they have slept for at least
+ * one full window. This feature is disabled when the tunable
+ * is set to 0 (the default).
  */
 #ifdef CONFIG_SCHED_FREQ_INPUT
 unsigned int __read_mostly sysctl_sched_freq_aggregate_threshold_pct = 0;
