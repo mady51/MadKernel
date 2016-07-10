@@ -186,6 +186,9 @@ struct cs_dbs_tuners {
 	unsigned int up_threshold;
 	unsigned int down_threshold;
 	unsigned int freq_step;
+	unsigned int down_threshold_suspended;
+	unsigned int boost_enabled;
+	 unsigned int boost_count;
 };
 
 /* Common Governor data across policies */
