@@ -1932,6 +1932,13 @@ static void qup_i2c_recover_bit_bang(struct i2c_msm_ctrl *ctrl)
 	struct pinctrl_state *bitbang;
 
 	disable_irq(ctrl->rsrcs.irq);
+	if (!(status & (I2C_STATUS_BUS_ACTIVE)) ||
+		(status & (I2C_STATUS_BUS_MASTER))) {
+		dev_warn(ctrl->dev, "unexpected i2c recovery call:0x%x\n",
+				    status);
+		goto recovery_exit;
+	}
+
 	gpio_clk = of_get_named_gpio(ctrl->adapter.dev.of_node, "qcom,i2c-clk",
 				     0);
 	gpio_dat = of_get_named_gpio(ctrl->adapter.dev.of_node, "qcom,i2c-dat",
