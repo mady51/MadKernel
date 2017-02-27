@@ -16,6 +16,7 @@ obj-$(CONFIG_CPU_FREQ_GOV_CONSERVATIVEX) += cpufreq_conservativex.o
 obj-$(CONFIG_CPU_FREQ_GOV_INTERACTIVE)	+= cpufreq_interactive.o
 obj-$(CONFIG_CPU_FREQ_GOV_ALUCARD)	+= cpufreq_alucard.o
 obj-$(CONFIG_CPU_FREQ_GOV_LIONHEART)	+= cpufreq_lionheart.o
+obj-$(CONFIG_CPU_FREQ_GOV_NEBULA)	+= cpufreq_nebula.o
 obj-$(CONFIG_CPU_FREQ_GOV_COMMON)		+= cpufreq_governor.o
 obj-$(CONFIG_CPU_FREQ_GOV_ELECTRON)	+= cpufreq_electron.o
 obj-$(CONFIG_CPU_FREQ_GOV_TRIPNDROID)	+= cpufreq_tripndroid.o
