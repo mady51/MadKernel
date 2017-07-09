@@ -186,6 +186,12 @@ config CPU_FREQ_DEFAULT_GOV_ELECTRON
 	  loading your cpufreq low-level hardware driver, using the
 	  'electron' governor for latency-sensitive workloads.
 
+config CPU_FREQ_DEFAULT_GOV_LIONHEART
+	bool "lionheart"
+	select CPU_FREQ_GOV_LIONHEART
+	help
+	  Use the CPUFreq governor 'Lionheart' as default.
+
 endchoice
 
 config CPU_FREQ_GOV_PERFORMANCE
@@ -280,6 +286,12 @@ config CPU_FREQ_GOV_GABRIEL
 	depends on CPU_FREQ
 	select CPU_FREQ_GOV_COMMON
 	default y
+
+config CPU_FREQ_GOV_LIONHEART
+	tristate "'Lionheart' cpufreq governor"
+	depends on CPU_FREQ
+	help
+	  'Lionheart' - A brave and agile conservative-based governor.
 
 config CPU_FREQ_GOV_CONSERVATIVE
 	tristate "'conservative' cpufreq governor"
