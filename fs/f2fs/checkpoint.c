@@ -960,9 +960,6 @@ retry:
 	if (inode) {
 		unsigned long cur_ino = inode->i_ino;
 
-		if (is_dir)
-			F2FS_I(inode)->cp_task = current;
-
 		filemap_fdatawrite(inode->i_mapping);
 
 		if (is_dir)
