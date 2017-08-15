@@ -433,9 +433,49 @@ int lz4_compress(const unsigned char *src, size_t src_len,
 
 	*dst_len = out_len;
 
-	return 0;
-exit:
-	return ret;
+	/* external dictionary mode */
+	{
+		int result;
+
+		if ((streamPtr->dictSize < 64 * KB) &&
+			(streamPtr->dictSize < streamPtr->currentOffset)) {
+			result = LZ4_compress_generic(
+				streamPtr, source, dest, inputSize,
+				maxOutputSize, limitedOutput, byU32,
+				usingExtDict, dictSmall, acceleration);
+		} else {
+			result = LZ4_compress_generic(
+				streamPtr, source, dest, inputSize,
+				maxOutputSize, limitedOutput, byU32,
+				usingExtDict, noDictIssue, acceleration);
+		}
+		streamPtr->dictionary = (const BYTE *)source;
+		streamPtr->dictSize = (U32)inputSize;
+		streamPtr->currentOffset += (U32)inputSize;
+		return result;
+	}
+}
+EXPORT_SYMBOL(LZ4_compress_fast_continue);
+
+/*-******************************
+ *	For backwards compatibility
+ ********************************/
+int lz4_compress(const unsigned char *src, size_t src_len, unsigned char *dst,
+	size_t *dst_len, void *wrkmem) {
+	*dst_len = LZ4_compress_default(src, dst, src_len,
+		LZ4_COMPRESSBOUND(src_len), wrkmem);
+
+	/*
+	 * Prior lz4_compress will return -1 in case of error
+	 * and 0 on success
+	 * while new LZ4_compress_fast/default
+	 * returns 0 in case of error
+	 * and the output length on success
+	 */
+	if (!*dst_len)
+		return -1;
+	else
+		return 0;
 }
 EXPORT_SYMBOL(lz4_compress);
 
