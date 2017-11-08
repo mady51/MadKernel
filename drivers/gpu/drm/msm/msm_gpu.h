@@ -133,6 +133,15 @@ struct msm_gpu {
 	struct timer_list hangcheck_timer;
 	uint32_t hangcheck_fence;
 	struct work_struct recover_work;
+	struct msm_snapshot *snapshot;
+
+	struct {
+		struct devfreq *devfreq;
+		u64 busy_cycles;
+		ktime_t time;
+		struct thermal_cooling_device *cooling_dev;
+	} devfreq;
+};
 
 	struct list_head submit_list;
 };
