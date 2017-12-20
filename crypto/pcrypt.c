@@ -306,7 +306,16 @@ static void pcrypt_aead_exit_tfm(struct crypto_tfm *tfm)
 	crypto_free_aead(ctx->child);
 }
 
-static void pcrypt_free(struct crypto_instance *inst)
+static void pcrypt_free(struct aead_instance *inst)
+{
+	struct pcrypt_instance_ctx *ctx = aead_instance_ctx(inst);
+
+	crypto_drop_aead(&ctx->spawn);
+	kfree(inst);
+}
+
+static int pcrypt_init_instance(struct crypto_instance *inst,
+				struct crypto_alg *alg)
 {
 	struct pcrypt_instance_ctx *ctx = crypto_instance_ctx(inst);
 
@@ -366,8 +375,11 @@ static struct crypto_instance *pcrypt_alloc_aead(struct rtattr **tb,
 	if (IS_ERR(inst))
 		goto out_put_alg;
 
-	inst->alg.cra_flags = CRYPTO_ALG_TYPE_AEAD | CRYPTO_ALG_ASYNC;
-	inst->alg.cra_type = &crypto_aead_type;
+	inst->free = pcrypt_free;
+
+	err = aead_register_instance(tmpl, inst);
+	if (err)
+		goto out_drop_aead;
 
 	inst->alg.cra_aead.ivsize = alg->cra_aead.ivsize;
 	inst->alg.cra_aead.geniv = alg->cra_aead.geniv;
@@ -403,7 +415,7 @@ static struct crypto_instance *pcrypt_alloc(struct rtattr **tb)
 		return pcrypt_alloc_aead(tb, algt->type, algt->mask);
 	}
 
-	return ERR_PTR(-EINVAL);
+	return -EINVAL;
 }
 
 static int pcrypt_cpumask_change_notify(struct notifier_block *self,
@@ -517,7 +529,7 @@ static void pcrypt_fini_padata(struct padata_pcrypt *pcrypt)
 
 static struct crypto_template pcrypt_tmpl = {
 	.name = "pcrypt",
-	.alloc = pcrypt_alloc,
+	.create = pcrypt_create,
 	.module = THIS_MODULE,
 };
 
