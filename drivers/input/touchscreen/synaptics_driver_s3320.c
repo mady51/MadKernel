@@ -1196,7 +1196,7 @@ static void gesture_judge(struct synaptics_ts_data *ts)
 				UnkownGestrue;
 	}
 
-/*
+
 	keyCode = UnkownGestrue;
 	switch (gesture) {
 		case DouTap:
@@ -1244,8 +1244,9 @@ static void gesture_judge(struct synaptics_ts_data *ts)
 		default:
 			break;
 	}
-*/
-	TPD_ERR("detect %s gesture\n", gesture == DouTap ? "(double tap)" :
+
+	TPD_ERR("detect %s gesture\n",
+			gesture == DouTap ? "(double tap)" :
 			gesture == UpVee ? "(V)" :
 			gesture == DownVee ? "(^)" :
 			gesture == LeftVee ? "(>)" :
@@ -1736,19 +1737,18 @@ static const struct file_operations coordinate_proc_fops = {
 #define TS_ENABLE_FOPS(type) \
 static ssize_t type##_read_func(struct file *file, char __user *user_buf, size_t count, loff_t *ppos) \
 { \
-	char enable[3]; \
-	sprintf(enable, "%d\n", !!type##_enable); \
-	return simple_read_from_buffer(user_buf, sizeof(enable), ppos, enable - *ppos, sizeof(enable)); \
+	int ret = 0; \
+	char page[PAGESIZE]; \
+	ret = sprintf(page, "%d\n", type##_enable); \
+	ret = simple_read_from_buffer(user_buf, count, ppos, page, strlen(page)); \
+	return ret; \
 } \
-static ssize_t type##_write_func(struct file *file, const char __user *user_buf, size_t count, loff_t *ppos) \
+static ssize_t type##_write_func(struct file *file, const char __user *buf, size_t count, loff_t *ppos) \
 { \
-	int ret; \
-	char enable; \
+	int ret = 0; \
 	struct synaptics_ts_data *ts = ts_g; \
-	ret = copy_from_user(&enable, user_buf, sizeof(enable)); \
-	if (ret) \
-		return ret; \
-	type##_enable = enable - '0'; \
+	sscanf(buf, "%d", &ret); \
+	type##_enable = ret; \
 	gesture_enable(ts); \
 	return count; \
 } \
