@@ -593,8 +593,17 @@ static bool eval_need(struct cpu_data *f)
 
 	if (need_cpus > last_need) {
 		ret = 1;
-	} else if (need_cpus < last_need) {
-		s64 elapsed = now - f->need_ts;
+	} else {
+		/*
+		 * When there is no change in need and there are no more
+		 * active CPUs than currently needed, just update the
+		 * need time stamp and return.
+		 */
+		if (new_need == last_need && new_need == cluster->active_cpus) {
+			cluster->need_ts = now;
+			spin_unlock_irqrestore(&state_lock, flags);
+			return 0;
+		}
 
 		if (elapsed >= f->offline_delay_ms) {
 			ret = 1;
