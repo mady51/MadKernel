@@ -6879,6 +6879,8 @@ static enum power_supply_property smbchg_battery_properties[] = {
 	POWER_SUPPLY_PROP_RESTRICTED_CHARGING,
 	POWER_SUPPLY_PROP_ALLOW_HVDCP3,
 	POWER_SUPPLY_PROP_MAX_PULSE_ALLOWED,
+	POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN,
+	POWER_SUPPLY_PROP_CYCLE_COUNT
 };
 
 static int smbchg_battery_set_property(struct power_supply *psy,
@@ -7137,11 +7139,10 @@ static int smbchg_battery_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_MAX_PULSE_ALLOWED:
 		val->intval = chip->max_pulse_allowed;
 		break;
-#ifndef CONFIG_QPNP_LEGACY_CYCLE_COUNT
+	case POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN:
 	case POWER_SUPPLY_PROP_CYCLE_COUNT:
-		val->intval = get_prop_batt_cycle_count(chip);
+		get_property_from_fg(chip, prop, &val->intval);
 		break;
-#endif
 	default:
 		return -EINVAL;
 	}
