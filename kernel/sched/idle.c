@@ -216,7 +216,7 @@ use_default:
  */
 static void cpu_idle_loop(void)
 {
-	int cpu = smp_processor_id();
+	//int cpu = smp_processor_id();
 
 	while (1) {
 	int cpu = smp_processor_id();
