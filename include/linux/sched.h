@@ -3147,6 +3147,7 @@ static inline void thread_group_cputime_init(struct signal_struct *sig)
  */
 extern void recalc_sigpending_and_wake(struct task_struct *t);
 extern void recalc_sigpending(void);
+extern void calculate_sigpending(void);
 
 extern void signal_wake_up_state(struct task_struct *t, unsigned int state);
 
