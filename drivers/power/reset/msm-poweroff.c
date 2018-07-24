@@ -341,9 +341,9 @@ static void msm_restart_prepare(const char *cmd)
 			qpnp_pon_set_restart_reason(PON_RESTART_REASON_REBOOT);
 			__raw_writel(0x77665501, restart_reason);
 		}
-	} else {
-		pr_notice("%s : cmd is NULL, set to reboot mode\n", __func__);
-		qpnp_pon_set_restart_reason(PON_RESTART_REASON_REBOOT);
+	} else if (in_panic) {
+		qpnp_pon_set_restart_reason(
+			PON_RESTART_REASON_REBOOT);
 		__raw_writel(0x77665501, restart_reason);
 	}
 
