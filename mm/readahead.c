@@ -245,7 +245,7 @@ unsigned long max_sane_readahead(unsigned long nr)
 
 /*
  * Submit IO for the read-ahead request in file_ra_state.
- */
+ 
 unsigned long ra_submit(struct file_ra_state *ra,
 		       struct address_space *mapping, struct file *filp)
 {
@@ -256,7 +256,7 @@ unsigned long ra_submit(struct file_ra_state *ra,
 
 	return actual;
 }
-
+*/
 /*
  * Set the initial window size, round to next power of 2 and square
  * Small size is not dependant on max value - only a one-page read is regarded

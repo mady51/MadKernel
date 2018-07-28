@@ -28,7 +28,7 @@ extern int __do_page_cache_readahead(struct address_space *mapping,
 
 /*
  * Submit IO for the read-ahead request in file_ra_state.
- */
+*/
 static inline unsigned long ra_submit(struct file_ra_state *ra,
 		struct address_space *mapping, struct file *filp)
 {
