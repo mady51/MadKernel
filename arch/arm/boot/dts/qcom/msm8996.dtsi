@@ -2842,7 +2842,7 @@
 		qcom,temp-hysteresis = <10>;
 		qcom,therm-reset-temp = <115>;
 		qcom,freq-step = <2>;
-		qcom,core-limit-temp = <80>;
+		qcom,core-limit-temp = <60>;
 		qcom,core-temp-hysteresis = <10>;
 		qcom,hotplug-temp = <100>;
 		qcom,hotplug-temp-hysteresis = <20>;
