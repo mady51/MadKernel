@@ -178,7 +178,7 @@ static int account_threads_stats(void)
 	rcu_read_unlock();
 	return 0;
 }
-
+/*
 static int single_uid_time_in_state_show(struct seq_file *m, void  *ptr)
 {
 	struct uid_entry *uid_entry;
@@ -238,7 +238,7 @@ static int single_uid_time_in_state_show(struct seq_file *m, void  *ptr)
 	kfree(total_time_in_state);
 	return 0;
 }
-
+*/
 static int uid_time_in_state_show(struct seq_file *m, void *v)
 {
 	struct uid_entry *uid_entry;
