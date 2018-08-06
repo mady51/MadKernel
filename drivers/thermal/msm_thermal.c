@@ -3566,7 +3566,7 @@ static void check_temp(struct work_struct *work)
 	if (!msm_thermal_probed)
  		return;
 
-	if (!polling_enabled) {
+	if (msm_thermal_probed) {
 		ret = therm_get_temp(HOTPLUG_SENSOR_ID, THERM_ZONE_ID, &temp);
 		if (ret) {
 			pr_err("Unable to read sensor:%d. err:%d\n",
