@@ -21,15 +21,15 @@
 /* On-demand governor macros */
 #define DEF_FREQUENCY_UP_THRESHOLD		(80)
 #ifdef CONFIG_ZEN_INTERACTIVE
-#define DEF_SAMPLING_DOWN_FACTOR		(10)
+#define DEF_SAMPLING_DOWN_FACTOR		(15)
 #else
 #define DEF_SAMPLING_DOWN_FACTOR		(1)
 #endif
-#define MAX_SAMPLING_DOWN_FACTOR		(100000)
-#define MICRO_FREQUENCY_UP_THRESHOLD		(95)
+#define MAX_SAMPLING_DOWN_FACTOR		(1000000)
+#define MICRO_FREQUENCY_UP_THRESHOLD		(15)
 #define MICRO_FREQUENCY_MIN_SAMPLE_RATE		(10000)
 #define MIN_FREQUENCY_UP_THRESHOLD		(11)
-#define MAX_FREQUENCY_UP_THRESHOLD		(100)
+#define MAX_FREQUENCY_UP_THRESHOLD		(15)
 
 static DEFINE_PER_CPU(struct od_cpu_dbs_info_s, od_cpu_dbs_info);
 
@@ -513,7 +513,7 @@ static int od_init(struct dbs_data *dbs_data)
 	}
 
 	tuners->sampling_down_factor = DEF_SAMPLING_DOWN_FACTOR;
-	tuners->ignore_nice_load = 0;
+	tuners->ignore_nice_load = 1;
 	tuners->powersave_bias = default_powersave_bias;
 	tuners->io_is_busy = should_io_be_busy();
 
