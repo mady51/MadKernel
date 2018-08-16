@@ -249,8 +249,8 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 ARCH		?= $(SUBARCH)
 CROSS_COMPILE	?= $(CONFIG_CROSS_COMPILE:"%"=%)
-HDK		:= /home/kaminey51/Kerneldev/toolchain/android_vendor_qcom_sdclang/
-HDK_TC		:= /home/kaminey51/Kerneldev/toolchain/android_vendor_qcom_sdclang/bin/
+HDK		?= $(HDK:"%"=%) 
+HDK_TC		?= $(HDK_TC:"%"=%)
 ARCH		:= arm64
 SUBARCH		:= arm64
 CROSS_COMPILE	:= $(HDK_TC)aarch64-cortex_a57-linux-android-
