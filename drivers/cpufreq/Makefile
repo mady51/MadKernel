@@ -26,9 +26,6 @@ obj-$(CONFIG_FINGERPRINT_BOOST)		+= fp-boost.o
 obj-$(CONFIG_CPU_FREQ_GOV_CHILL)	+= cpufreq_chill.o
 obj-$(CONFIG_CPU_FREQ_GOV_BLU_ACTIVE)	+= cpufreq_blu_active.o
 
-# CPU Input Boost
-obj-$(CONFIG_CPU_INPUT_BOOST)		+= cpu_input_boost.o
-
 obj-$(CONFIG_CPUFREQ_DT)		+= cpufreq-dt.o
 
 ##################################################################################
