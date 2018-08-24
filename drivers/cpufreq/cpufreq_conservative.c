@@ -335,7 +335,7 @@ static int cs_init(struct dbs_data *dbs_data)
 
 	dbs_data->tuners = tuners;
 	dbs_data->min_sampling_rate = MIN_SAMPLING_RATE_RATIO *
-		jiffies_to_usecs(10);
+		jiffies_to_usecs(5);
 	mutex_init(&dbs_data->mutex);
 	return 0;
 }

@@ -19,7 +19,7 @@
 #include "cpufreq_governor.h"
 
 /* On-demand governor macros */
-#define DEF_FREQUENCY_UP_THRESHOLD		(80)
+#define DEF_FREQUENCY_UP_THRESHOLD		(20)
 #ifdef CONFIG_ZEN_INTERACTIVE
 #define DEF_SAMPLING_DOWN_FACTOR		(15)
 #else
