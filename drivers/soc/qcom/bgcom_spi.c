@@ -779,8 +779,23 @@ static int bg_spi_remove(struct spi_device *spi)
 	mutex_destroy(&bg_spi->xfer_mutex);
 	devm_kfree(&spi->dev, bg_spi);
 	spi_set_drvdata(spi, NULL);
-
+	if (fxd_mem_buffer != NULL)
+		kfree(fxd_mem_buffer);
+	mutex_destroy(&cma_buffer_lock);
 	return 0;
+}
+
+static void bg_spi_shutdown(struct spi_device *spi)
+{
+	bg_spi_remove(spi);
+}
+
+static int bgcom_pm_suspend(struct device *dev)
+{
+	uint32_t cmnd_reg = 0;
+	struct spi_device *s_dev = to_spi_device(dev);
+	struct bg_spi_priv *bg_spi = spi_get_drvdata(s_dev);
+	int ret = 0;
 }
 
 static const struct of_device_id bg_spi_of_match[] = {
@@ -796,6 +811,7 @@ static struct spi_driver bg_spi_driver = {
 	},
 	.probe = bg_spi_probe,
 	.remove = bg_spi_remove,
+	.shutdown = bg_spi_shutdown,
 };
 
 module_spi_driver(bg_spi_driver);
