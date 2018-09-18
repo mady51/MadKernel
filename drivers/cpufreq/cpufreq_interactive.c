@@ -791,13 +791,6 @@ static void cpufreq_interactive_boost(struct cpufreq_interactive_tunables *tunab
 			anyboost = 1;
 		}
 
-		/*
-		 * Set floor freq and (re)start timer for when last
-		 * validated.
-		 */
-
-		ppol->floor_freq = tunables->hispeed_freq;
-		ppol->floor_validate_time = ktime_to_us(ktime_get());
 		spin_unlock_irqrestore(&ppol->target_freq_lock, flags[1]);
 		break;
 	}
