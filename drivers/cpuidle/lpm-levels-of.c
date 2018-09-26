@@ -293,7 +293,7 @@ static int create_cpu_lvl_nodes(struct lpm_cluster *p, struct kobject *parent)
 			goto release_kobj;
 		}
 
-		for (i = 0; i < p->cpu->nlevels; i++) {
+		for (i = 1; i < p->cpu->nlevels; i++) {
 
 			ret = create_lvl_avail_nodes(p->cpu->levels[i].name,
 					cpu_kobj[cpu_idx], &level_list[i],
