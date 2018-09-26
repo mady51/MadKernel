@@ -124,12 +124,12 @@ static void cpuidle_idle_call(void)
 	 * Ask the cpuidle framework to choose a convenient idle state.
 	 * Fall back to the default arch idle method on errors.
 	 */
-	if (idle_should_freeze()) {
+/*	if (idle_should_freeze()) {
 		cpuidle_enter_freeze();
 		local_irq_enable();
 		goto exit_idle;
 	}
-
+*/
 	/*
 	 * Ask the cpuidle framework to choose a convenient idle state.
 	 * Fall back to the default arch idle method on errors.
