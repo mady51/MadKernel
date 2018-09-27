@@ -1417,6 +1417,7 @@ typedef struct tagCsrConfigParam
 #ifdef WLAN_FEATURE_SAP_TO_FOLLOW_STA_CHAN
     tANI_U32    sap_ch_switch_with_csa;
 #endif//#ifdef WLAN_FEATURE_SAP_TO_FOLLOW_STA_CHAN
+    bool enable_bcast_probe_rsp;
 }tCsrConfigParam;
 
 //Tush

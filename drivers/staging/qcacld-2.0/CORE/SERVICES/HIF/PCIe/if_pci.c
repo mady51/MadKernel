@@ -1937,7 +1937,7 @@ err_region:
  * power up WLAN host driver when SSR happens. Most of this
  * function is duplicated from hif_pci_probe().
  */
-#ifdef HIF_PCI
+#ifdef CONFIG_CNSS
 int hif_pci_reinit(struct pci_dev *pdev, const struct pci_device_id *id)
 {
     void __iomem *mem;
@@ -2284,7 +2284,6 @@ err_region:
 
     return ret;
 }
-#endif
 
 void hif_pci_notify_handler(struct pci_dev *pdev, int state)
 {
@@ -2295,6 +2294,7 @@ void hif_pci_notify_handler(struct pci_dev *pdev, int state)
           printk(KERN_ERR "%s: Fail to send notify\n", __func__);
    }
 }
+#endif
 
 void
 hif_nointrs(struct hif_pci_softc *sc)
@@ -2616,7 +2616,42 @@ hif_pci_remove(struct pci_dev *pdev)
     pci_disable_device(pdev);
     printk(KERN_INFO "pci_remove\n");
 }
+/*
+#ifdef CONFIG_CNSS
+static void hif_pci_ssr_fail_ind(void)
+{
+	v_CONTEXT_t vos_ctx;
+	hdd_context_t *hdd_ctx;
 
+	vos_ctx = vos_get_global_context(VOS_MODULE_ID_SYS, NULL);
+	if (!vos_ctx) {
+		VOS_TRACE(VOS_MODULE_ID_HIF, VOS_TRACE_LEVEL_ERROR,
+			"%s: Failed vos_get_global_context", __func__);
+		return;
+	}
+
+	hdd_ctx = (hdd_context_t *)vos_get_context(VOS_MODULE_ID_HDD, vos_ctx);
+	if (!hdd_ctx) {
+		VOS_TRACE(VOS_MODULE_ID_HIF, VOS_TRACE_LEVEL_ERROR,
+			"%s: HDD context is Null", __func__);
+		return;
+	}
+	wlan_hdd_send_svc_nlink_msg(hdd_ctx->radio_index,
+				    WLAN_SVC_SSR_FAIL_IND, NULL, 0);
+	VOS_TRACE(VOS_MODULE_ID_HIF, VOS_TRACE_LEVEL_ERROR,
+		"%s: send WLAN_SVC_SSR_FAIL_IND\n", __func__);
+}
+
+void hif_pci_update_status(struct pci_dev *pdev, uint32_t status)
+{
+	VOS_TRACE(VOS_MODULE_ID_HIF, VOS_TRACE_LEVEL_ERROR,
+		"%s: status=%u\n", __func__, status);
+	if (status == CNSS_SSR_FAIL) {
+		vos_set_ssr_failed(TRUE);
+		hif_pci_ssr_fail_ind();
+	}
+}
+*/
 /* This function will be called when SSR framework wants to
  * shutdown WLAN host driver when SSR happens. Most of this
  * function is duplicated from hif_pci_remove().
@@ -3163,10 +3198,8 @@ __hif_pci_resume(struct pci_dev *pdev, bool runtime_pm)
     pci_set_master(pdev);
 
 skip:
-#ifdef HIF_PCI
     /* Keep PCIe bus driver's shadow memory intact */
     vos_pcie_shadow_control(pdev, TRUE);
-#endif
 
 #ifdef DISABLE_L1SS_STATES
     pci_read_config_dword(pdev, 0x188, &val);

@@ -872,7 +872,7 @@ limProcessAssocReqFrame(tpAniSirGlobal pMac, tANI_U8 *pRxPacketInfo,
 
                     goto error;
                 }/* end - if(pAssocReq->wpa.length) */
-            } /* end - if(pAssocReq->wpaPresent) */
+            }
         } /* end of if(psessionEntry->pLimStartBssReq->privacy
             && psessionEntry->pLimStartBssReq->rsnIE->length) */
 
