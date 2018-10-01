@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -885,6 +885,15 @@ static ssize_t wcd9xxx_print_name(struct switch_dev *sdev, char *buf)
 	return -EINVAL;
 }
 
+static const struct tasha_reg_mask_val tasha_high_impedance[] = {
+	{WCD9335_TLMM_I2S_TX_SD0_PINCFG, 0x1F, 0x0C},
+	{WCD9335_TLMM_I2S_TX_SD1_PINCFG, 0x1F, 0x0C},
+	{WCD9335_TLMM_I2S_TX_SCK_PINCFG, 0x1F, 0x0C},
+	{WCD9335_TLMM_I2S_TX_WS_PINCFG, 0x1F, 0x0C},
+	{WCD9335_TEST_DEBUG_PIN_CTL_OE_1, 0xE0, 0xE0},
+	{WCD9335_TEST_DEBUG_PIN_CTL_OE_2, 0x01, 0x01},
+};
+
 /**
  * tasha_set_spkr_gain_offset - offset the speaker path
  * gain with the given offset value.
@@ -986,6 +995,20 @@ static void tasha_cdc_sido_ccl_enable(struct tasha_priv *tasha, bool ccl_flag)
 			snd_soc_update_bits(codec,
 				WCD9335_SIDO_SIDO_CCL_10, 0xFF, 0x02);
 	}
+}
+
+static void tasha_set_high_impedance_mode(struct snd_soc_codec *codec)
+{
+	const struct tasha_reg_mask_val *regs;
+	int i, size;
+
+	dev_dbg(codec->dev, "%s: setting TX I2S in Hi-Z mode\n", __func__);
+	regs = tasha_high_impedance;
+	size = ARRAY_SIZE(tasha_high_impedance);
+
+	for (i = 0; i < size; i++)
+		snd_soc_update_bits(codec, regs[i].reg,
+				    regs[i].mask, regs[i].val);
 }
 
 static bool tasha_cdc_is_svs_enabled(struct tasha_priv *tasha)
@@ -14173,8 +14196,7 @@ static int tasha_codec_probe(struct snd_soc_codec *codec)
 	snd_soc_dapm_sync(dapm);
 	priv_headset_type = tasha;
 
-	/* ASUS_BSP Paul +++ */
-        if (!g_audiowizard_force_preset_sdev) {
+/*        if (!g_audiowizard_force_preset_sdev) {
 		g_audiowizard_force_preset_sdev = kzalloc(sizeof(struct switch_dev), GFP_KERNEL);
 		if (!g_audiowizard_force_preset_sdev) {
 			pr_err("%s: failed to allocate switch_dev\n", __func__);
@@ -14186,7 +14208,11 @@ static int tasha_codec_probe(struct snd_soc_codec *codec)
 		if (ret < 0)
 			pr_err("%s: failed to register switch audiowizard_force_preset\n", __func__);
 	}
-	/* ASUS_BSP Paul --- */
+	 ASUS_BSP Paul --- */
+
+	if (pdata->wcd9xxx_mic_tristate)
+		tasha_set_high_impedance_mode(codec);
+
 	return ret;
 
 err_pdata:
