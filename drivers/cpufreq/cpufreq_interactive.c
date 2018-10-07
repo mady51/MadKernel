@@ -1796,7 +1796,7 @@ static int cpufreq_governor_interactive(struct cpufreq_policy *policy,
 
 		freq_table = cpufreq_frequency_get_table(policy->cpu);
 		if (!tunables->hispeed_freq)
-			tunables->hispeed_freq = policy->max;;
+			tunables->hispeed_freq = 1036800;
 
 		ppol = per_cpu(polinfo, policy->cpu);
 		ppol->policy = policy;
