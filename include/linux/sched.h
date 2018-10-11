@@ -3198,6 +3198,10 @@ struct migration_notify_data {
 
 extern struct atomic_notifier_head load_alert_notifier_head;
 
+#ifndef vcpu_is_preempted
+# define vcpu_is_preempted(cpu)	false
+#endif
+
 extern long sched_setaffinity(pid_t pid, const struct cpumask *new_mask);
 extern long sched_getaffinity(pid_t pid, struct cpumask *mask);
 
