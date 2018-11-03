@@ -419,9 +419,26 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common -Wno-unused-variable \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
-		   -std=gnu89 -O3 $(CLANG_FLAGS)
+		   -std=gnu89 $(call cc-option, -fno-PIE) \
+		   -fdiagnostics-color=auto \
+		   -g0 -DNDEBUG -D_FILE_OFFSET_BITS=64 \
+		   -fivopts -fopenmp -ffast-math \
+		   -fmodulo-sched -fmodulo-sched-allow-regmoves
 
+# Optimization for ARM Cortex A73/Qualcomm Kryo 250/260/280 Gold
+KBUILD_CFLAGS += $(call cc-option, -mabi=lp64)
+KBUILD_CFLAGS += $(call cc-option, -march=armv8.2-a+crc+crypto+fp+simd+sve+lse+rdma+fp16+fp16fml+rcpc+dotprod+aes+sha2+sha3+sm4+profile)
+KBUILD_CFLAGS += $(call cc-option, -mcpu=cortex-a76.cortex-a55+crc+crypto+fp+simd+sve+lse+rdma+fp16+fp16fml+rcpc+dotprod+aes+sha2+sha3+sm4+profile)
+KBUILD_CFLAGS += $(call cc-option, -mtune=cortex-a76.cortex-a55)
 
+KBUILD_AFLAGS += $(call cc-option, -mabi=lp64)
+KBUILD_AFLAGS += $(call cc-option, -march=armv8.2-a+crc+crypto+fp+simd+sve+lse+rdma+fp16+fp16fml+rcpc+dotprod+aes+sha2+sha3+sm4+profile)
+KBUILD_AFLAGS += $(call cc-option, -mcpu=cortex-a76.cortex-a55+crc+crypto+fp+simd+sve+lse+rdma+fp16+fp16fml+rcpc+dotprod+aes+sha2+sha3+sm4+profile)
+KBUILD_AFLAGS += $(call cc-option, -mtune=cortex-a76.cortex-a55)
+
+ifeq ($(TARGET_BOARD_TYPE),auto)
+KBUILD_CFLAGS    += -DCONFIG_PLATFORM_AUTO
+endif
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
 KBUILD_AFLAGS   := -D__ASSEMBLY__ $(CLANG_FLAGS)
