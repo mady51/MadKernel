@@ -172,7 +172,7 @@ static ssize_t nfc_read(struct file *filp, char __user *buf,
 	irq_gpio_val = gpio_get_value(nqx_dev->irq_gpio);
 	if (irq_gpio_val == 0) {
 		if (filp->f_flags & O_NONBLOCK) {
-			dev_err(&nqx_dev->client->dev,
+			dev_dbg(&nqx_dev->client->dev,
 			":f_falg has O_NONBLOCK. EAGAIN\n");
 			ret = -EAGAIN;
 			goto err;
@@ -209,7 +209,7 @@ static ssize_t nfc_read(struct file *filp, char __user *buf,
 	/* Read data */
 	ret = i2c_master_recv(nqx_dev->client, tmp, count);
 	if (ret < 0) {
-		dev_err(&nqx_dev->client->dev,
+		dev_dbg(&nqx_dev->client->dev,
 			"%s: i2c_master_recv returned %d\n", __func__, ret);
 		goto err;
 	}
