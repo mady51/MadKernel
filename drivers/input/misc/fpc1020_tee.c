@@ -41,10 +41,10 @@
 #include <linux/platform_device.h>
 #include <linux/pm_wakeup.h>
 
-#define FPC1020_RESET_LOW_US	(1000)
-#define FPC1020_RESET_HIGH1_US	(100)
-#define FPC1020_RESET_HIGH2_US	(1250)
-#define FPC_TTW_HOLD_TIME_MS	(1000)
+#define FPC1020_RESET_LOW_US	(500)
+#define FPC1020_RESET_HIGH1_US	(50)
+#define FPC1020_RESET_HIGH2_US	(600)
+#define FPC_TTW_HOLD_TIME_MS	(500)
 
 struct fpc1020_data {
 	struct device *dev;
