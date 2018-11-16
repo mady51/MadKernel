@@ -216,12 +216,11 @@ void compute_work_load(struct devfreq_dev_status *stats,
 	spin_unlock(&sample_lock);
 }
 
-/* Trap into the TrustZone, and call funcs there. */
+/* Trap into the TrustZone, and call funcs there. 
 static int __secure_tz_reset_entry2(unsigned int *scm_data, u32 size_scm_data,
 					bool is_64)
 {
 	int ret;
-	/* sync memory before sending the commands to tz */
 	__iowmb();
 
 	if (!is_64) {
@@ -242,7 +241,7 @@ static int __secure_tz_reset_entry2(unsigned int *scm_data, u32 size_scm_data,
 	}
 	return ret;
 }
-
+*/
 static int __secure_tz_update_entry3(unsigned int *scm_data, u32 size_scm_data,
 		int *val, u32 size_val, struct devfreq_msm_adreno_tz_data *priv)
 {
@@ -686,9 +685,21 @@ static int tz_stop(struct devfreq *devfreq)
 	return 0;
 }
 
+/* Trap into the TrustZone, and call funcs there. */
+static int __secure_tz_entry2(u32 cmd, u32 val1, u32 val2)
+{
+	int ret;
+	spin_lock(&tz_lock);
+	/* sync memory before sending the commands to tz*/
+	__iowmb();
+	ret = scm_call_atomic2(SCM_SVC_IO, cmd, val1, val2);
+	spin_unlock(&tz_lock);
+	return ret;
+}
+
 static int tz_suspend(struct devfreq *devfreq)
 {
-	struct devfreq_msm_adreno_tz_data *priv = devfreq->data;
+/*	struct devfreq_msm_adreno_tz_data *priv = devfreq->data;
 	unsigned int scm_data[2] = {0, 0};
 	__secure_tz_reset_entry2(scm_data, sizeof(scm_data), priv->is_64);
 	display_on = is_display_on();
@@ -697,6 +708,16 @@ static int tz_suspend(struct devfreq *devfreq)
 	priv->bin.total_time = 0;
 	priv->bin.busy_time = 0;
 
+	return 0;
+*/
+	struct devfreq_msm_adreno_tz_data *priv = devfreq->data;
+	suspended = true;
+	__secure_tz_entry2(TZ_RESET_ID, 0, 0);
+	priv->bin.total_time = 0;
+ 	priv->bin.busy_time = 0;
+ 	priv->bus.total_time = 0;
+ 	priv->bus.gpu_time = 0;
+ 	priv->bus.ram_time = 0;
 	return 0;
 }
 
