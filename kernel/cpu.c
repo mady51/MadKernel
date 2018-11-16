@@ -422,7 +422,7 @@ int __ref cpu_down(unsigned int cpu)
 	cpu_maps_update_begin();
 
 	/* Don't offline CPU 0,4 */
-	if (cpu == 0 || cpu == 4) {
+	if (cpu == 0 || cpu == 2) {
 		err = -EINVAL;
 		goto out;
 	}
