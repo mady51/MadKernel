@@ -784,7 +784,7 @@ static void __ref do_hotplug(struct cpu_data *f)
 				continue;
 
 			/* Don't offline CPU 0,4 */
-			if (c->cpu == 0 || c->cpu == 2)
+			if (c->cpu == 0 || c->cpu == 4)
 				continue;
 
 			pr_debug("Trying to Offline CPU%u\n", c->cpu);
@@ -807,7 +807,7 @@ static void __ref do_hotplug(struct cpu_data *f)
 				break;
 
 			/* Don't offline CPU 0,4 */
-			if (c->cpu == 0 || c->cpu == 2)
+			if (c->cpu == 0 || c->cpu == 4)
 				continue;
 
 			pr_debug("Trying to Offline CPU%u\n", c->cpu);
