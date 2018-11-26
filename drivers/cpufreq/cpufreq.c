@@ -35,7 +35,7 @@
 #include <trace/events/power.h>
 #ifdef CONFIG_STATE_NOTIFIER
 #include <linux/state_notifier.h>
-#ifdef CONFIG_MACH_MSM8996_LUCYE
+#ifdef CONFIG_MAD_MSM8996_LIMIT
 #define SCREEN_OFF_CEILING 902400
 #else
 #define SCREEN_OFF_CEILING 844800
