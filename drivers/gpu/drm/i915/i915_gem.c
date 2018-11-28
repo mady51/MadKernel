@@ -5130,7 +5130,13 @@ void i915_gem_release(struct drm_device *dev, struct drm_file *file)
 {
 	struct drm_i915_file_private *file_priv = file->driver_priv;
 
-	cancel_delayed_work_sync(&file_priv->mm.idle_work);
+#if defined(CONFIG_SMP) && !defined(CONFIG_DEBUG_MUTEXES)
+	return mutex->owner == task;
+#else
+	/* Since UP may be pre-empted, we cannot assume that we own the lock */
+	return false;
+#endif
+}
 
 	/* Clean up our request list when the client is going away, so that
 	 * later retire_requests won't dereference our soon-to-be-gone
