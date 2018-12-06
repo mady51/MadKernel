@@ -112,7 +112,7 @@
 			compatible = "fsl,mpc5121-ipic", "fsl,ipic";
 			interrupt-controller;
 			#address-cells = <0>;
-			#interrupt-cells = <2>;
+		//	#interrupt-cells = <2>;
 			reg = <0xc00 0x100>;
 		};
 
@@ -509,7 +509,7 @@
 		clock-frequency = <0>;
 		#address-cells = <3>;
 		#size-cells = <2>;
-		#interrupt-cells = <1>;
+	//	#interrupt-cells = <1>;
 		clocks = <&clks MPC512x_CLK_PCI>;
 		clock-names = "ipg";
 
