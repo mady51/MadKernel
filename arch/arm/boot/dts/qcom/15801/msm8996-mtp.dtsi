@@ -638,7 +638,6 @@
 			gpios = <&pm8994_gpios 3 0x1>;
 			linux,input-type = <1>;
 			linux,code = <115>;
-			gpio-key,wakeup;
 			debounce-interval = <15>;
 		};
 		vol_down {
@@ -646,7 +645,6 @@
 			gpios = <&pm8994_gpios 2 0x1>;
 			linux,input-type = <1>;
 			linux,code = <114>;
-			gpio-key,wakeup;
 			debounce-interval = <15>;
 		};
 
@@ -943,7 +941,12 @@
 		fstab {
 			/delete-node/ vendor;
 			system {
+				compatible = "android,system";
 				dev = "/dev/block/platform/soc/624000.ufshc/by-name/system";
+				type = "ext4";
+				mnt_flags = "ro,barrier=1,discard";
+				fsmgr_flags = "wait";
+				status = "ok";
 			};
 		};
 	};
@@ -1025,17 +1028,6 @@
 	qcom,bcl {
 		/delete-property/ qcom,bcl-hotplug-list;
 		/delete-property/ qcom,bcl-soc-hotplug-list;
-		qcom,ibat-monitor {
-			qcom,mitigation-freq-khz = <1132800>;
-		};
-	};
-
-	qcom,bcl {
-		/delete-property/ qcom,bcl-hotplug-list;
-		/delete-property/ qcom,bcl-soc-hotplug-list;
-		qcom,ibat-monitor {
-			qcom,mitigation-freq-khz = <1132800>;
-		};
 	};
 };
 

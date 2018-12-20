@@ -26,22 +26,11 @@ static const struct file_operations cmdline_proc_fops = {
 
 static int __init proc_cmdline_init(void)
 {
-	/* SafetyNet bypass: show androidboot.verifiedbootstate=green */
-	char *a1, *a2;
+	char *offset_addr;
 
-	a1 = strstr(saved_command_line, "androidboot.verifiedbootstate=");
-	if (a1) {
-		a1 = strchr(a1, '=');
-		a2 = strchr(a1, ' ');
-		if (!a2) /* last argument on the cmdline */
-			a2 = "";
-
-		scnprintf(proc_cmdline, COMMAND_LINE_SIZE, "%.*sgreen%s",
-			  (int)(a1 - saved_command_line + 1),
-			  saved_command_line, a2);
-	} else {
-		strncpy(proc_cmdline, saved_command_line, COMMAND_LINE_SIZE);
-	}
+	offset_addr = strstr(saved_command_line, "androidboot.mode=reboot");
+	if (offset_addr != NULL)
+		strncpy(offset_addr + 17, "normal", 6);
 
 	proc_create("cmdline", 0, NULL, &cmdline_proc_fops);
 	return 0;

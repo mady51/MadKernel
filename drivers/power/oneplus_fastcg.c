@@ -571,7 +571,7 @@ static void request_mcu_irq(struct fastchg_device_info *di)
 	gpio_set_value(di->ap_clk, 1);
 	if (di->adapter_update_real
 		!= ADAPTER_FW_NEED_UPDATE) {
-		pr_info("%s\n", __func__);
+		pr_debug("%s\n", __func__);
 		if (!di->irq_enabled) {
 			retval = request_irq(di->irq, irq_rx_handler,
 					IRQF_TRIGGER_RISING, "mcu_data", di);
@@ -1186,8 +1186,6 @@ err_misc_register_failed:
 err_read_dt:
 	kfree(di);
 err_check_functionality_failed:
-	wake_lock_destroy(&di->fastchg_wake_lock);
-	wake_lock_destroy(&di->fastchg_update_fireware_lock);
 	pr_err("dash_probe fail\n");
 	return 0;
 }
@@ -1205,9 +1203,6 @@ static int dash_remove(struct i2c_client *client)
 		gpio_free(di->ap_clk);
 	if (gpio_is_valid(di->ap_data))
 		gpio_free(di->ap_data);
-
-	wake_lock_destroy(&di->fastchg_wake_lock);
-        wake_lock_destroy(&di->fastchg_update_fireware_lock);
 
 	return 0;
 }

@@ -2408,6 +2408,7 @@ static void update_fils_data(struct sir_fils_indication *fils_ind,
         vos_mem_copy(fils_ind->cache_identifier.identifier,
                 data, SIR_CACHE_IDENTIFIER_LEN);
         data = data + SIR_CACHE_IDENTIFIER_LEN;
+        remaining_data = remaining_data - SIR_CACHE_IDENTIFIER_LEN;
     }
     if (fils_indication->is_hessid_present) {
         if (remaining_data < SIR_HESSID_LEN) {
@@ -2420,6 +2421,7 @@ static void update_fils_data(struct sir_fils_indication *fils_ind,
         vos_mem_copy(fils_ind->hessid.hessid,
                 data, SIR_HESSID_LEN);
         data = data + SIR_HESSID_LEN;
+        remaining_data = remaining_data - SIR_HESSID_LEN;
     }
     if (fils_indication->realm_identifiers_cnt) {
         if (remaining_data < (fils_indication->realm_identifiers_cnt *
@@ -6173,8 +6175,8 @@ sap_auth_offload_update_rsn_ie( tpAniSirGlobal pmac,
             vos_mem_copy(&(pdot11f_rsn->pwise_cipher_suites[0][0]),
                          &sirRSNOui[DOT11F_RSN_CSE_CCMP][0],
                          DOT11F_RSN_OUI_SIZE);
-            pdot11f_rsn->akm_suite_count = 1;
-            vos_mem_copy(&(pdot11f_rsn->akm_suites[0][0]),
+            pdot11f_rsn->akm_suite_cnt = 1;
+            vos_mem_copy(&(pdot11f_rsn->akm_suite[0][0]),
                          &sirRSNOui[DOT11F_RSN_CSE_TKIP][0],
                          DOT11F_RSN_OUI_SIZE);
             pdot11f_rsn->pmkid_count = 0;

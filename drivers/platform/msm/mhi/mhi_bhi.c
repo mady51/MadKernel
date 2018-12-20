@@ -83,6 +83,9 @@ static int bhi_alloc_bhie_xfer(struct mhi_device_ctxt *mhi_dev_ctxt,
 			i, info->dma_handle, info->phys_addr);
 	}
 
+	if (!info)
+		goto alloc_dma_error;
+
 	sg_init_table(sg_list, segments);
 	sg_set_buf(sg_list, info->aligned, info->size);
 	sg_dma_address(sg_list) = info->phys_addr;

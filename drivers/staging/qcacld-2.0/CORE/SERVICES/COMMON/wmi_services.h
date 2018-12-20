@@ -357,7 +357,9 @@ typedef enum {
     WMI_SERVICE_NDI_SAP_SUPPORT=167, /* Support SAP Concurrency for NAN Data interface */
     WMI_SERVICE_CFR_CAPTURE_SUPPORT=168, /* Support to capture uncompressed Channel Frequency Response (CFR) */
     WMI_SERVICE_CFR_CAPTURE_IND_MSG_TYPE_1=169, /* Message type HTT_PEER_CFR_CAPTURE_MSG_TYPE_1 in HTT_T2H_MSG_TYPE_CFR_DUMP_COMPL_IND */
-
+    WMI_SERVICE_ESP_SUPPORT=170, /* Support for Estimated Service Params IE */
+    WMI_SERVICE_PEER_CHWIDTH_CHANGE = 171, /* Support for host to update/re-intersect the node capability */
+    WMI_SERVICE_WLAN_HPCS_PULSE=172, /* Support for High Precision Clock Synchronization feature */
 
     /******* ADD NEW SERVICES HERE *******/
 
@@ -420,8 +422,8 @@ typedef enum {
         (svc_id) < WMI_MAX_SERVICE ? \
             WMI_SERVICE_IS_ENABLED(pwmi_svc_bmap, svc_id) : \
             /* If service ID is in the extended range, check ext_bmap */ \
-            (pwmi_svc_ext_bmap)[((svc_id) - WMI_MAX_SERVICE) / 32] >> \
-                ((svc_id) & 0x1f))
+            (((pwmi_svc_ext_bmap)[((svc_id) - WMI_MAX_SERVICE) / 32] >> \
+                ((svc_id) & 0x1f)) & 0x1))
 
 
 #ifdef __cplusplus

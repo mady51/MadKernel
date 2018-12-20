@@ -41,10 +41,10 @@
 #include <linux/platform_device.h>
 #include <linux/pm_wakeup.h>
 
-#define FPC1020_RESET_LOW_US	(500)
-#define FPC1020_RESET_HIGH1_US	(50)
-#define FPC1020_RESET_HIGH2_US	(600)
-#define FPC_TTW_HOLD_TIME_MS	(500)
+#define FPC1020_RESET_LOW_US	(1000)
+#define FPC1020_RESET_HIGH1_US	(100)
+#define FPC1020_RESET_HIGH2_US	(1250)
+#define FPC_TTW_HOLD_TIME_MS	(1000)
 
 struct fpc1020_data {
 	struct device *dev;
@@ -180,6 +180,17 @@ static ssize_t irq_get(struct device *dev,
 	return count;
 }
 
+/**
+ * writing to the irq node will just drop a printk message
+ * and return success, used for latency measurement.
+ */
+static ssize_t irq_ack(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count)
+{
+	dev_dbg(dev, "%s\n", __func__);
+	return count;
+}
+
 static ssize_t screen_state_get(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
@@ -239,7 +250,7 @@ static ssize_t report_home_set(struct device *dev,
 }
 
 static DEVICE_ATTR(hw_reset, S_IWUSR, NULL, hw_reset_set);
-static DEVICE_ATTR(irq, S_IRUSR | S_IWUSR, irq_get, NULL);
+static DEVICE_ATTR(irq, S_IRUSR | S_IWUSR, irq_get, irq_ack);
 static DEVICE_ATTR(proximity_state, S_IWUSR, NULL, proximity_state_set);
 static DEVICE_ATTR(report_home, S_IWUSR, NULL, report_home_set);
 static DEVICE_ATTR(screen_state, S_IRUSR, screen_state_get, NULL);
@@ -277,10 +288,10 @@ static void fpc1020_suspend_resume(struct work_struct *work)
 
 	/* Escalate fingerprintd priority when screen is off */
 	if (f->screen_off) {
-		set_fingerprint_hal_nice(0);
+		set_fingerprint_hal_nice(MIN_NICE);
 	} else {
 		set_fpc_irq(f, true);
-		set_fingerprint_hal_nice(-1);
+		set_fingerprint_hal_nice(0);
 	}
 
 	sysfs_notify(&f->dev->kobj, NULL, dev_attr_screen_state.attr.name);
@@ -373,7 +384,7 @@ static int fpc1020_probe(struct platform_device *pdev)
 
 	ret = devm_request_threaded_irq(dev, gpio_to_irq(f->irq_gpio),
 			NULL, fpc1020_irq_handler,
-			IRQF_TRIGGER_RISING | IRQF_ONESHOT | IRQF_PERF_CRITICAL,
+			IRQF_TRIGGER_RISING | IRQF_ONESHOT,
 			dev_name(dev), f);
 	if (ret) {
 		dev_err(dev, "Could not request irq, ret: %d\n", ret);

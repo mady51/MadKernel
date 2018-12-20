@@ -97,7 +97,7 @@ enum oem_boot_mode{
 /*---------------------------------------------Global Variable----------------------------------------------*/
 static unsigned int tp_debug = 0;
 static int force_update = 0;
-static int key_reverse = 1;
+static int key_reverse = 0;
 static struct synaptics_ts_data *tc_g = NULL;
 int test_err = 0;
 static int touchkey_wait_time = 45;
@@ -220,6 +220,7 @@ static void synaptics_ts_probe_func(struct work_struct *w)
 
 static int oem_synaptics_ts_probe(struct i2c_client *client, const struct i2c_device_id *id)
 {
+	int i;
 	optimize_data.client = client;
 	optimize_data.dev_id = id;
 	optimize_data.workqueue = create_workqueue("tc_probe_optimize");
@@ -228,6 +229,13 @@ static int oem_synaptics_ts_probe(struct i2c_client *client, const struct i2c_de
 	//spin_lock_irqsave(&oem_lock, flags);
 	if(get_boot_mode() == MSM_BOOT_MODE__NORMAL)
 	{
+		for (i = 0; i < NR_CPUS; i++){
+            TPD_ERR("boot_time: [synaptics_ts_probe] CPU%d is %s\n",i,cpu_is_offline(i)?"offline":"online");
+            if (cpu_online(i) && (i != smp_processor_id()))
+                break;
+	    }
+        queue_delayed_work_on(i != NR_CPUS?i:0,optimize_data.workqueue,&(optimize_data.work),msecs_to_jiffies(300));
+	}else{
 		queue_delayed_work_on(0,optimize_data.workqueue,&(optimize_data.work),msecs_to_jiffies(300));
 	}
 	return probe_ret;
@@ -690,7 +698,7 @@ static void int_key(struct synaptics_ts_data *ts )
     {
         input_report_key(ts->input_dev, REP_KEY_MENU, 1);
         input_sync(ts->input_dev);
-    }else if(!(button_key & 0x01) && (ts->pre_btn_state & 0x01)){
+    }else if(!(button_key & 0x01) && (ts->pre_btn_state & 0x01) && !key_disable){
         input_report_key(ts->input_dev, REP_KEY_MENU, 0);
         input_sync(ts->input_dev);
     }
@@ -699,7 +707,7 @@ static void int_key(struct synaptics_ts_data *ts )
     {
         input_report_key(ts->input_dev, REP_KEY_BACK, 1);
         input_sync(ts->input_dev);
-    }else if(!(button_key & 0x02) && (ts->pre_btn_state & 0x02)){
+    }else if(!(button_key & 0x02) && (ts->pre_btn_state & 0x02) && !key_disable){
         input_report_key(ts->input_dev, REP_KEY_BACK, 0);
         input_sync(ts->input_dev);
     }

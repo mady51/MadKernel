@@ -1045,6 +1045,7 @@ static int armv8pmu_request_irq(struct arm_pmu *cpu_pmu, irq_handler_t handler)
 
 		on_each_cpu(armpmu_enable_percpu_irq, &irq, 1);
 		cpu_pmu->percpu_irq_requested = true;
+		cpu_pmu->percpu_irq = irq;
 	} else {
 		for (i = 0; i < irqs; ++i) {
 			err = 0;
@@ -1338,17 +1339,33 @@ static int __cpuinit cpu_pmu_notify(struct notifier_block *b,
 {
 	int cpu = (unsigned long)hcpu;
 	struct arm_pmu *pmu = container_of(b, struct arm_pmu, hotplug_nb);
-	if ((action & ~CPU_TASKS_FROZEN) != CPU_STARTING)
-		return NOTIFY_DONE;
-	if (!cpumask_test_cpu(cpu, cpu_online_mask))
-		return NOTIFY_DONE;
 
-	if (pmu->reset)
-		cpu_pmu->reset(pmu);
-	else
-		return NOTIFY_DONE;
-	return NOTIFY_OK;
+	switch (action & ~CPU_TASKS_FROZEN) {
+	case CPU_DOWN_PREPARE:
+		if (pmu->percpu_irq_requested) {
+			int irq = pmu->percpu_irq;
+			smp_call_function_single(cpu,
+				armpmu_disable_percpu_irq, &irq, 1);
+		}
+		break;
+
+	case CPU_STARTING:
+	case CPU_DOWN_FAILED:
+		if (pmu->reset)
+			pmu->reset(pmu);
+		if (pmu->percpu_irq_requested) {
+			int irq = pmu->percpu_irq;
+			smp_call_function_single(cpu,
+				armpmu_enable_percpu_irq, &irq, 1);
+		}
+		break;
+	}
+	return NOTIFY_DONE;
 }
+#else
+static inline int cpu_pm_pmu_register(struct arm_pmu *cpu_pmu) { return 0; }
+static inline void cpu_pm_pmu_unregister(struct arm_pmu *cpu_pmu) { }
+#endif
 
 #ifdef CONFIG_CPU_PM
 static void cpu_pm_pmu_setup(struct arm_pmu *armpmu, unsigned long cmd)
@@ -1430,7 +1447,8 @@ static int cpu_pm_pmu_notify(struct notifier_block *b, unsigned long cmd,
 		return NOTIFY_DONE;
 	}
 
-	return NOTIFY_OK;
+		cpu_pmu->pmu.read(event);
+	}
 }
 
 static int cpu_pm_pmu_register(struct arm_pmu *cpu_pmu)

@@ -405,13 +405,21 @@ static void synaptics_ts_probe_func(struct work_struct *w)
 
 static int oem_synaptics_ts_probe(struct i2c_client *client, const struct i2c_device_id *id)
 {
+	int i;
 	optimize_data.client = client;
 	optimize_data.dev_id = id;
 	optimize_data.workqueue = create_workqueue("tpd_probe_optimize");
 	INIT_DELAYED_WORK(&(optimize_data.work), synaptics_ts_probe_func);
 	TPD_ERR("before on cpu [%d]\n",smp_processor_id());
 
-    queue_delayed_work(optimize_data.workqueue,&(optimize_data.work),msecs_to_jiffies(300));
+	//add by lifeng@bsp 2015-12-10 for only one cpu on line
+	for (i = 0; i < NR_CPUS; i++){
+         TPD_ERR("check CPU[%d] is [%s]\n",i,cpu_is_offline(i)?"offline":"online");
+		 if (cpu_online(i) && (i != smp_processor_id()))
+            break;
+    }
+    queue_delayed_work_on(i != NR_CPUS?i:0,optimize_data.workqueue,&(optimize_data.work),msecs_to_jiffies(300));
+    //end add by lifeng@bsp 2015-12-10 for only one cpu on line
 
 	return probe_ret;
 }
@@ -1188,7 +1196,6 @@ static void gesture_judge(struct synaptics_ts_data *ts)
 				UnkownGestrue;
 	}
 
-
 	keyCode = UnkownGestrue;
 	switch (gesture) {
 		case DouTap:
@@ -1729,18 +1736,19 @@ static const struct file_operations coordinate_proc_fops = {
 #define TS_ENABLE_FOPS(type) \
 static ssize_t type##_read_func(struct file *file, char __user *user_buf, size_t count, loff_t *ppos) \
 { \
-	int ret = 0; \
-	char page[PAGESIZE]; \
-	ret = sprintf(page, "%d\n", type##_enable); \
-	ret = simple_read_from_buffer(user_buf, count, ppos, page, strlen(page)); \
-	return ret; \
+	char enable[3]; \
+	sprintf(enable, "%d\n", !!type##_enable); \
+	return simple_read_from_buffer(user_buf, sizeof(enable), ppos, enable - *ppos, sizeof(enable)); \
 } \
-static ssize_t type##_write_func(struct file *file, const char __user *buf, size_t count, loff_t *ppos) \
+static ssize_t type##_write_func(struct file *file, const char __user *user_buf, size_t count, loff_t *ppos) \
 { \
-	int ret = 0; \
+	int ret; \
+	char enable; \
 	struct synaptics_ts_data *ts = ts_g; \
-	sscanf(buf, "%d", &ret); \
-	type##_enable = ret; \
+	ret = copy_from_user(&enable, user_buf, sizeof(enable)); \
+	if (ret) \
+		return ret; \
+	type##_enable = enable - '0'; \
 	gesture_enable(ts); \
 	return count; \
 } \
@@ -4445,8 +4453,12 @@ static int fb_notifier_callback(struct notifier_block *self, unsigned long event
 				TPD_DEBUG("%s going TP resume start\n",
 				__func__);
                 ts->is_suspended = 0;
-				queue_delayed_work(get_base_report,
-				&ts->base_work, msecs_to_jiffies(80));
+				if (ts->gesture_enable)
+					synaptics_enable_interrupt_for_gesture(ts, false);
+				else
+					synaptics_mode_change(0x00);/*change getbase data*/
+				atomic_set(&ts->is_stop, 0);
+				touch_enable(ts);
 				synaptics_ts_resume(&ts->client->dev);
 				TPD_DEBUG("%s going TP resume end\n", __func__);
 			}

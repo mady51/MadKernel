@@ -1534,4 +1534,53 @@ struct hal_mnt_filter_type_request
     u_int8_t  request_data[];
 };
 
+struct hal_thermal_mgmt_cmd_params
+{
+    tANI_U16 min_temp;
+    tANI_U16 max_temp;
+    tANI_U8 enable;
+};
+
+/**
+ * @struct hal_tt_level_config - Set Thermal throttlling config
+ * @tmplwm: Temperature low water mark
+ * @tmphwm: Temperature high water mark
+ * @dcoffpercent: dc off percentage
+ * @priority: priority
+ */
+typedef struct
+{
+    uint32_t tmplwm;
+    uint32_t tmphwm;
+    uint32_t dcoffpercent;
+    uint32_t priority;
+} hal_tt_level_config;
+
+/**
+ * struct hal_thermal_mitigation_params - Thermal mitigation params
+ * @enable: Enable/Disable Thermal mitigation
+ * @dc: DC
+ * @dc_per_event: DC per event
+ * @tt_level_config: TT level config params
+ */
+struct hal_thermal_mitigation_params
+{
+    tANI_U32 pdev_id;
+    bool enable;
+    tANI_U32 dc;
+    tANI_U32 dc_per_event;
+    hal_tt_level_config level_conf[WLAN_WMA_MAX_THERMAL_LEVELS];
+};
+
+struct hal_hpcs_pulse_params
+{
+    tANI_U32 vdev_id;
+    tANI_U32 start;
+    tANI_U32 sync_time;
+    tANI_U32 pulse_interval;
+    tANI_U32 active_sync_period;
+    tANI_U32 gpio_pin;
+    tANI_U32 pulse_width;
+};
+
 #endif /* _HALMSGAPI_H_ */

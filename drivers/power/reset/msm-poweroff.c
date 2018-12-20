@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013-2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -293,15 +293,9 @@ static void msm_restart_prepare(const char *cmd)
 				strcmp(cmd, "userrequested")));
 	}
 
-	/* To preserve console-ramoops */
+#ifdef CONFIG_MSM_PRESERVE_MEM
 	need_warm_reset = true;
-
-	/* Perform a regular reboot upon panic or unspecified command */
-	if (in_panic || !cmd) {
-		__raw_writel(0x77665501, restart_reason);
-		cmd = NULL;
-		in_panic = false;
-	}
+#endif
 
 	/* Hard reset the PMIC unless memory contents must be maintained. */
 	if (need_warm_reset) {
@@ -354,9 +348,9 @@ static void msm_restart_prepare(const char *cmd)
 			qpnp_pon_set_restart_reason(PON_RESTART_REASON_REBOOT);
 			__raw_writel(0x77665501, restart_reason);
 		}
-	} else if (in_panic) {
-		qpnp_pon_set_restart_reason(
-			PON_RESTART_REASON_REBOOT);
+	} else {
+		pr_notice("%s : cmd is NULL, set to reboot mode\n", __func__);
+		qpnp_pon_set_restart_reason(PON_RESTART_REASON_REBOOT);
 		__raw_writel(0x77665501, restart_reason);
 	}
 
